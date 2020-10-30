@@ -1,0 +1,1 @@
+void cdefg(VgmPlayer* v);

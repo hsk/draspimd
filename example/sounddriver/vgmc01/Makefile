@@ -11,3 +11,6 @@ gif:
 mp4:
 	#ffmpeg -i rom*.mkv -b 1500k -r 15 -vf "scale=1280:720" -an -vcodec libx264 -pix_fmt yuv420p rom.mp4
 	ffmpeg -i rom*.mkv -b 1500k -r 30  -vf "scale=1280:720" -vcodec libx264 -pix_fmt yuv420p rom.mp4
+g:
+	cd gen;make
+
