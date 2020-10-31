@@ -1,0 +1,96 @@
+;--------------------------------------------
+; define
+
+PSG_REG:    EQU     $7F11 ; PSG ポート
+
+;--------------------------------------------
+; macros
+
+  macro       psg_write v
+      LD      HL, PSG_REG
+      LD      (HL), v
+  endm
+
+  macro       psg_env ch,v
+      psg_write 0x90 | ((ch & 3) << 5) | (v & 0xF)
+  endm
+
+  macro       psg_tone ch,v
+      psg_write 0x80 | ((ch & 3) << 5) | (v & 0xF)
+      psg_write (v >> 4) & 0x3F
+  endm
+
+;--------------------------------------------
+
+BOOT: ; プログラム 開始位置
+            ORG     $0000
+            DI                              ; 割り込み禁止
+            LD      SP, $2000               ; スタックポインタ初期化
+            IM      1                       ; 割り込みMODE 1
+            DI
+            JP      INIT                    ; RESET
+
+; 68000 とのデータやり取り
+            BLOCK   $0010-$
+            ORG     $0010
+COUNTER:    DB      0     ; カウンタ
+ENDF:       DB      0     ; 終了フラグ
+
+
+; 割込み処理 --------------------------
+            BLOCK   $0038-$
+            ORG     $0038
+VSYNC:      
+            PUSH    AF                        ; AF 待避
+            LD      A,(COUNTER)               ; カウンタをAに
+            AND     A                         ; Aがゼロかチェック
+            JP      Z, .lp1                   ; 0 なら lp1終了
+            DEC     A                         ; Aを１つ減らして
+            LD      (COUNTER),A               ; カウンタに保存
+            EI
+.lp1:
+            POP     AF                      ; AF 戻す
+            RETI                            ; VSYNC割り込み終了
+; 割り込み終了 -------------------------
+
+; 初期化
+INIT:       
+            ; エンベロープ設定
+            psg_env   0,$f     
+            psg_env   1,$f
+            psg_env   2,$f
+            psg_env   3,$f
+
+            psg_tone  0,255
+            psg_env   0,0
+
+            LD        B,255            ; 255繰り返す
+.bloop:
+            LD        A,1
+            LD        (COUNTER),A
+.lp2:
+            EI
+            LD        A,(COUNTER)
+            AND       A
+            JP        NZ,.lp2      ; カウンタがゼロになるまで待つ
+
+            LD        A,B         ; A=B
+            AND       $f          ; A&0xfにして
+            ADD       0x80
+            LD        (PSG_REG), A ; PSG_REGに設定
+            LD        A,B          ; B=A
+            RRCA                   ; 右シフト4回
+            RRCA
+            RRCA
+            RRCA
+            AND       $f          ; で
+            LD        (PSG_REG), A; PSG設定
+            DEC       B
+            JP        NZ,.bloop ; Bのループ
+
+            psg_tone  0,0
+            psg_env   0,$f
+            LD        A,1
+            LD        (ENDF), A
+            
+LP1:        JP        LP1

@@ -1,0 +1,116 @@
+01   0000             ;--------------------------------------------
+02   0000             ; define
+03   0000             
+04   0000             PSG_REG:    EQU     $7F11 ; PSG ポート
+05   0000             
+06   0000             ;--------------------------------------------
+07   0000             ; macros
+08   0000             
+09   0000               macro       psg_write v
+10   0000~                  LD      HL, PSG_REG
+11   0000~                  LD      (HL), v
+12   0000               endm
+13   0000             
+14   0000               macro       psg_env ch,v
+15   0000~                  psg_write 0x90 | ((ch & 3) << 5) | (v & 0xF)
+16   0000               endm
+17   0000             
+18   0000               macro       psg_tone ch,v
+19   0000~                  psg_write 0x80 | ((ch & 3) << 5) | (v & 0xF)
+20   0000~                  psg_write (v >> 4) & 0x3F
+21   0000               endm
+22   0000             
+23   0000             ;--------------------------------------------
+24   0000             
+25   0000             BOOT: ; プログラム 開始位置
+26   0000                         ORG     $0000
+27   0000 F3                      DI                              ; 割り込み禁止
+28   0001 31 00 20                LD      SP, $2000               ; スタックポインタ初期化
+29   0004 ED 56                   IM      1                       ; 割り込みMODE 1
+30   0006 F3                      DI
+31   0007 C3 48 00                JP      INIT                    ; RESET
+32   000A             
+33   000A             ; 68000 とのデータやり取り
+34   000A 00                      BLOCK   $0010-$
+35   0010                         ORG     $0010
+36   0010 00          COUNTER:    DB      0     ; カウンタ
+37   0011 00          ENDF:       DB      0     ; 終了フラグ
+38   0012             
+39   0012             
+40   0012             ; 割込み処理 --------------------------
+41   0012 00                      BLOCK   $0038-$
+42   0038                         ORG     $0038
+43   0038             VSYNC:      
+44   0038 F5                      PUSH    AF                        ; AF 待避
+45   0039 3A 10 00                LD      A,(COUNTER)               ; カウンタをAに
+46   003C A7                      AND     A                         ; Aがゼロかチェック
+47   003D CA 45 00                JP      Z, .lp1                   ; 0 なら lp1終了
+48   0040 3D                      DEC     A                         ; Aを１つ減らして
+49   0041 32 10 00                LD      (COUNTER),A               ; カウンタに保存
+50   0044 FB                      EI
+51   0045             .lp1:
+52   0045 F1                      POP     AF                      ; AF 戻す
+53   0046 ED 4D                   RETI                            ; VSYNC割り込み終了
+54   0048             ; 割り込み終了 -------------------------
+55   0048             
+56   0048             ; 初期化
+57   0048             INIT:       
+58   0048                         ; エンベロープ設定
+59   0048                         psg_env   0,$f     
+59   0048 21 11 7F    >      LD      HL, PSG_REG
+59   004B 36 9F       >      LD      (HL), v
+60   004D                         psg_env   1,$f
+60   004D 21 11 7F    >      LD      HL, PSG_REG
+60   0050 36 BF       >      LD      (HL), v
+61   0052                         psg_env   2,$f
+61   0052 21 11 7F    >      LD      HL, PSG_REG
+61   0055 36 DF       >      LD      (HL), v
+62   0057                         psg_env   3,$f
+62   0057 21 11 7F    >      LD      HL, PSG_REG
+62   005A 36 FF       >      LD      (HL), v
+63   005C             
+64   005C                         psg_tone  0,255
+64   005C 21 11 7F    >      LD      HL, PSG_REG
+64   005F 36 8F       >      LD      (HL), v
+64   0061 21 11 7F    >      LD      HL, PSG_REG
+64   0064 36 0F       >      LD      (HL), v
+65   0066                         psg_env   0,0
+65   0066 21 11 7F    >      LD      HL, PSG_REG
+65   0069 36 90       >      LD      (HL), v
+66   006B             
+67   006B 06 FF                   LD        B,255            ; 255繰り返す
+68   006D             .bloop:
+69   006D 3E 01                   LD        A,1
+70   006F 32 10 00                LD        (COUNTER),A
+71   0072             .lp2:
+72   0072 FB                      EI
+73   0073 3A 10 00                LD        A,(COUNTER)
+74   0076 A7                      AND       A
+75   0077 C2 72 00                JP        NZ,.lp2      ; カウンタがゼロになるまで待つ
+76   007A             
+77   007A 78                      LD        A,B         ; A=B
+78   007B E6 0F                   AND       $f          ; A&0xfにして
+79   007D C6 80                   ADD       0x80
+80   007F 32 11 7F                LD        (PSG_REG), A ; PSG_REGに設定
+81   0082 78                      LD        A,B          ; B=A
+82   0083 0F                      RRCA                   ; 右シフト4回
+83   0084 0F                      RRCA
+84   0085 0F                      RRCA
+85   0086 0F                      RRCA
+86   0087 E6 0F                   AND       $f          ; で
+87   0089 32 11 7F                LD        (PSG_REG), A; PSG設定
+88   008C 05                      DEC       B
+89   008D C2 6D 00                JP        NZ,.bloop ; Bのループ
+90   0090             
+91   0090                         psg_tone  0,0
+91   0090 21 11 7F    >      LD      HL, PSG_REG
+91   0093 36 80       >      LD      (HL), v
+91   0095 21 11 7F    >      LD      HL, PSG_REG
+91   0098 36 00       >      LD      (HL), v
+92   009A                         psg_env   0,$f
+92   009A 21 11 7F    >      LD      HL, PSG_REG
+92   009D 36 9F       >      LD      (HL), v
+93   009F 3E 01                   LD        A,1
+94   00A1 32 11 00                LD        (ENDF), A
+95   00A4                         
+96   00A4 C3 A4 00    LP1:        JP        LP1

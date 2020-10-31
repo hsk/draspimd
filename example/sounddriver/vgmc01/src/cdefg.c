@@ -1,9 +1,10 @@
 #include <stdint.h>
 typedef struct {
-  uint16_t pos;
+  unsigned short pos;
 }VgmPlayer;
-#define psg_write(v) *(volatile uint8_t*)0xC00011 = v;
+#define psg_write(v) *dt = v;
 void cdefg(VgmPlayer* v){
+  volatile uint8_t* dt=0xffff;
   switch(v->pos++){
     case 0:
       psg_write(159);
