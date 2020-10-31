@@ -1,0 +1,153 @@
+001   0000               .macro set_bank X
+002   0000~                    ld      hl,$6000        ; load shift register with address
+003   0000~                    
+004   0000~                    ld      a,(X+1)         ; of sound data
+005   0000~                    rlca
+006   0000~                    ld      (hl),a          ; #1 (bit 7)
+007   0000~            
+008   0000~                    ld      a,(X+2)
+009   0000~                    ld      (hl),a          ; #2 (bit 0)
+010   0000~                    rrca
+011   0000~                    ld      (hl),a          ; #3
+012   0000~                    rrca     
+013   0000~                    ld      (hl),a          ; #4
+014   0000~                    rrca     
+015   0000~                    ld      (hl),a          ; #5
+016   0000~                    rrca     
+017   0000~                    ld      (hl),a          ; #6
+018   0000~                    rrca     
+019   0000~                    ld      (hl),a          ; #7
+020   0000~                    rrca     
+021   0000~                    ld      (hl),a          ; #8
+022   0000~                    rrca     
+023   0000~                    ld      (hl),a          ; #9 (bit 7)
+024   0000               .endm
+025   0000             
+026   0000                     org    $0000
+027   0000             sound_driver:
+028   0000 C3 47 00            jp      start_driver    ; jump over variables
+029   0003                     
+030   0003 00                  block $38-$             ; pad
+031   0038                     
+032   0038 ED 4D               reti                    ; z80 interrupt addr $38
+033   003A             
+034   003A             start_flag:                     ; begin sound
+035   003A 01                  .byte   1
+036   003B             in_addr:                        ; address of sound data
+037   003B 00 00 00            .byte   0,0,0
+038   003E             in_len:                         ; length of sound data
+039   003E 00 00 00            .byte   0,0,0
+040   0041             
+041   0041             ;       Z80 copy area
+042   0041             
+043   0041             addr:                           ; address of sound data
+044   0041 00 00 00            .byte    0,0,0
+045   0044             len:                            ; length of sound data
+046   0044 00 00 00            .byte    0,0,0
+047   0047             
+048   0047             ;----------------------------------------------------------
+049   0047             ;       Start of driver code
+050   0047             ;----------------------------------------------------------
+051   0047             
+052   0047             start_driver:        
+053   0047 F3                  di
+054   0048 ED 56               im      1
+055   004A 31 00 20            ld      sp,$2000        ; set stack
+056   004D             
+057   004D             main_loop:
+058   004D 3A 3A 00            ld      a,(start_flag)  ; play sound?
+059   0050 B7                  or      a
+060   0051 CA 4D 00            jp      z,main_loop     ; nope, start_flag=0
+061   0054             
+062   0054 21 3B 00            ld      hl,in_addr      ; copy input variables
+063   0057 11 41 00            ld      de,addr
+064   005A 01 06 00            ld      bc,$6
+065   005D ED B0               ldir
+066   005F                     
+067   005F 3E 00               ld      a,0             ; we are about to start
+068   0061 32 3A 00            ld      (start_flag),a  ; playing sound...
+069   0064             
+070   0064 3E B4               ld      a,$b4           ; initialize sound registers
+071   0066 32 02 40            ld      ($4002),a       ; enable stereo
+072   0069 3E C0               ld      a,$c0
+073   006B 32 03 40            ld      ($4003),a
+074   006E 3E 2B               ld      a,$2b           ; enable DAC
+075   0070 32 00 40            ld      ($4000),a
+076   0073 3E 80               ld      a,$80
+077   0075 32 01 40            ld      ($4001),a
+078   0078                     
+079   0078 3A 44 00            ld      a,(len)         ; load BC with length of sound
+080   007B 4F                  ld      c,a
+081   007C 3A 45 00            ld      a,(len+1)
+082   007F 47                  ld      b,a
+083   0080             
+084   0080             sound_loop:
+085   0080 3E 06               ld      a,$6
+086   0082 3D          wait:   dec     a               ; loop for a bit
+087   0083 C2 82 00            jp      nz,wait
+088   0086             
+089   0086                     set_bank addr
+089   0086 21 00 60    >        ld      hl,$6000        ; load shift register with address
+089   0089 3A 42 00    >        ld      a,(X+1)         ; of sound data
+089   008C 07          >        rlca
+089   008D 77          >        ld      (hl),a          ; #1 (bit 7)
+089   008E 3A 43 00    >        ld      a,(X+2)
+089   0091 77          >        ld      (hl),a          ; #2 (bit 0)
+089   0092 0F          >        rrca
+089   0093 77          >        ld      (hl),a          ; #3
+089   0094 0F          >        rrca     
+089   0095 77          >        ld      (hl),a          ; #4
+089   0096 0F          >        rrca     
+089   0097 77          >        ld      (hl),a          ; #5
+089   0098 0F          >        rrca     
+089   0099 77          >        ld      (hl),a          ; #6
+089   009A 0F          >        rrca     
+089   009B 77          >        ld      (hl),a          ; #7
+089   009C 0F          >        rrca     
+089   009D 77          >        ld      (hl),a          ; #8
+089   009E 0F          >        rrca     
+089   009F 77          >        ld      (hl),a          ; #9 (bit 7)
+090   00A0 3A 41 00            ld      a,(addr)        ; retrieve byte from $8000-$FFFF
+091   00A3 6F                  ld      l,a
+092   00A4 3A 42 00            ld      a,(addr+1)
+093   00A7 F6 80               or      $80
+094   00A9 67                  ld      h,a
+095   00AA             
+096   00AA 3E 2A               ld      a,$2a           ; store byte to DAC
+097   00AC 32 00 40            ld      ($4000),a
+098   00AF 7E                  ld      a,(hl)
+099   00B0 32 01 40            ld      ($4001),a
+100   00B3             
+101   00B3 21 41 00            ld      hl,addr         ; increment sound address
+102   00B6 7E                  ld      a,(hl)
+103   00B7 C6 01               add     a,1
+104   00B9 77                  ld      (hl),a
+105   00BA             
+106   00BA 23                  inc     hl
+107   00BB 7E                  ld      a,(hl)
+108   00BC CE 00               adc     a,0
+109   00BE 77                  ld      (hl),a
+110   00BF             
+111   00BF 23                  inc     hl
+112   00C0 7E                  ld      a,(hl)
+113   00C1 CE 00               adc     a,0
+114   00C3 77                  ld      (hl),a
+115   00C4             
+116   00C4 3A 3A 00            ld      a,(start_flag)  ; do we need to play
+117   00C7 B7                  or      a               ; another sound before we
+118   00C8 C2 4D 00            jp      nz,main_loop    ; are finished?
+119   00CB                     
+120   00CB 0B                  dec     bc
+121   00CC 78                  ld      a,b
+122   00CD B1                  or      c
+123   00CE C2 80 00            jp      nz,sound_loop   ; done playing < 64K sound?
+124   00D1             
+125   00D1 3A 46 00            ld      a,(len+2)       ; any more to play?
+126   00D4 B7                  or      a
+127   00D5 CA 4D 00            jp      z,main_loop     ; nope
+128   00D8             
+129   00D8 3D                  dec     a
+130   00D9 3A 46 00            ld      a,(len+2)
+131   00DC 06 FF               ld      b,$ff
+132   00DE 0E FF               ld      c,$ff
+133   00E0 C3 80 00            jp      sound_loop      ; play the next 64K

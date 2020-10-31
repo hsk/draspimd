@@ -1,0 +1,133 @@
+  .macro set_bank X
+        ld      hl,$6000        ; load shift register with address
+        
+        ld      a,(X+1)         ; of sound data
+        rlca
+        ld      (hl),a          ; #1 (bit 7)
+
+        ld      a,(X+2)
+        ld      (hl),a          ; #2 (bit 0)
+        rrca
+        ld      (hl),a          ; #3
+        rrca     
+        ld      (hl),a          ; #4
+        rrca     
+        ld      (hl),a          ; #5
+        rrca     
+        ld      (hl),a          ; #6
+        rrca     
+        ld      (hl),a          ; #7
+        rrca     
+        ld      (hl),a          ; #8
+        rrca     
+        ld      (hl),a          ; #9 (bit 7)
+  .endm
+
+        org    $0000
+sound_driver:
+        jp      start_driver    ; jump over variables
+        
+        block $38-$             ; pad
+        
+        reti                    ; z80 interrupt addr $38
+
+start_flag:                     ; begin sound
+        .byte   1
+in_addr:                        ; address of sound data
+        .byte   0,0,0
+in_len:                         ; length of sound data
+        .byte   0,0,0
+
+;       Z80 copy area
+
+addr:                           ; address of sound data
+        .byte    0,0,0
+len:                            ; length of sound data
+        .byte    0,0,0
+
+;----------------------------------------------------------
+;       Start of driver code
+;----------------------------------------------------------
+
+start_driver:        
+        di
+        im      1
+        ld      sp,$2000        ; set stack
+
+main_loop:
+        ld      a,(start_flag)  ; play sound?
+        or      a
+        jp      z,main_loop     ; nope, start_flag=0
+
+        ld      hl,in_addr      ; copy input variables
+        ld      de,addr
+        ld      bc,$6
+        ldir
+        
+        ld      a,0             ; we are about to start
+        ld      (start_flag),a  ; playing sound...
+
+        ld      a,$b4           ; initialize sound registers
+        ld      ($4002),a       ; enable stereo
+        ld      a,$c0
+        ld      ($4003),a
+        ld      a,$2b           ; enable DAC
+        ld      ($4000),a
+        ld      a,$80
+        ld      ($4001),a
+        
+        ld      a,(len)         ; load BC with length of sound
+        ld      c,a
+        ld      a,(len+1)
+        ld      b,a
+
+sound_loop:
+        ld      a,$6
+wait:   dec     a               ; loop for a bit
+        jp      nz,wait
+
+        set_bank addr
+        ld      a,(addr)        ; retrieve byte from $8000-$FFFF
+        ld      l,a
+        ld      a,(addr+1)
+        or      $80
+        ld      h,a
+
+        ld      a,$2a           ; store byte to DAC
+        ld      ($4000),a
+        ld      a,(hl)
+        ld      ($4001),a
+
+        ld      hl,addr         ; increment sound address
+        ld      a,(hl)
+        add     a,1
+        ld      (hl),a
+
+        inc     hl
+        ld      a,(hl)
+        adc     a,0
+        ld      (hl),a
+
+        inc     hl
+        ld      a,(hl)
+        adc     a,0
+        ld      (hl),a
+
+        ld      a,(start_flag)  ; do we need to play
+        or      a               ; another sound before we
+        jp      nz,main_loop    ; are finished?
+        
+        dec     bc
+        ld      a,b
+        or      c
+        jp      nz,sound_loop   ; done playing < 64K sound?
+
+        ld      a,(len+2)       ; any more to play?
+        or      a
+        jp      z,main_loop     ; nope
+
+        dec     a
+        ld      a,(len+2)
+        ld      b,$ff
+        ld      c,$ff
+        jp      sound_loop      ; play the next 64K
