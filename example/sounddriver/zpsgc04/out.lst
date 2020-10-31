@@ -1,0 +1,112 @@
+01   0000               .macro set_bank X
+02   0000~                    ld      hl,$6000        ; load shift register with address
+03   0000~                    
+04   0000~                    ld      a,(X+1)         ; of sound data
+05   0000~                    rlca
+06   0000~                    ld      (hl),a          ; #1 (bit 7)
+07   0000~            
+08   0000~                    ld      a,(X+2)
+09   0000~                    ld      (hl),a          ; #2 (bit 0)
+10   0000~                    rrca
+11   0000~                    ld      (hl),a          ; #3
+12   0000~                    rrca     
+13   0000~                    ld      (hl),a          ; #4
+14   0000~                    rrca     
+15   0000~                    ld      (hl),a          ; #5
+16   0000~                    rrca     
+17   0000~                    ld      (hl),a          ; #6
+18   0000~                    rrca     
+19   0000~                    ld      (hl),a          ; #7
+20   0000~                    rrca     
+21   0000~                    ld      (hl),a          ; #8
+22   0000~                    rrca     
+23   0000~                    ld      (hl),a          ; #9 (bit 7)
+24   0000               .endm
+25   0000             
+26   0000             PSG_REG:    EQU     $7F11 ; PSG ポート
+27   0000                   ORG     $0000
+28   0000             BOOT: ; プログラム 開始位置
+29   0000                         ORG     $0000
+30   0000 F3                      DI                              ; 割り込み禁止
+31   0001 31 00 20                LD      SP, $2000               ; スタックポインタ初期化
+32   0004 ED 56                   IM      1                       ; 割り込みMODE 1
+33   0006 FB                      EI
+34   0007 C3 42 00                JP      INIT                    ; RESET
+35   000A             ; 68000 とのデータやり取り
+36   000A             
+37   000A 00                      BLOCK   $0010-$
+38   0010                         ORG     $0010
+39   0010 00          VINT:       DB      0     ; VINT
+40   0011 00          ENDF:       DB      0     ; 終了フラグ
+41   0012 00 00       POS:        DW      0     ; カウンタ
+42   0014             addr:                           ; address of sound data
+43   0014 00 00 00            .byte    0,0,0
+44   0017             addr2:                           ; address of sound data
+45   0017 00 00               .byte    0,0
+46   0019             ; 割込み処理 --------------------------
+47   0019 00                      BLOCK   $0038-$
+48   0038                         ORG     $0038
+49   0038             VSYNC:      
+50   0038 F5                      PUSH    AF                        ; AF 待避
+51   0039 3E 01                   LD      A,$1
+52   003B 32 10 00                LD      (VINT),A                ; カウンタをAに
+53   003E FB                      EI
+54   003F F1                      POP     AF                      ; AF 戻す
+55   0040 ED 4D                   RETI                            ; VSYNC割り込み終了
+56   0042             ; 割り込み終了 -------------------------
+57   0042             
+58   0042             INIT:
+59   0042 21 11 7F          LD      HL, PSG_REG  ; [10]
+60   0045 D9                EXX
+61   0046                   set_bank addr
+61   0046 21 00 60    >        ld      hl,$6000        ; load shift register with address
+61   0049 3A 15 00    >        ld      a,(X+1)         ; of sound data
+61   004C 07          >        rlca
+61   004D 77          >        ld      (hl),a          ; #1 (bit 7)
+61   004E 3A 16 00    >        ld      a,(X+2)
+61   0051 77          >        ld      (hl),a          ; #2 (bit 0)
+61   0052 0F          >        rrca
+61   0053 77          >        ld      (hl),a          ; #3
+61   0054 0F          >        rrca     
+61   0055 77          >        ld      (hl),a          ; #4
+61   0056 0F          >        rrca     
+61   0057 77          >        ld      (hl),a          ; #5
+61   0058 0F          >        rrca     
+61   0059 77          >        ld      (hl),a          ; #6
+61   005A 0F          >        rrca     
+61   005B 77          >        ld      (hl),a          ; #7
+61   005C 0F          >        rrca     
+61   005D 77          >        ld      (hl),a          ; #8
+61   005E 0F          >        rrca     
+61   005F 77          >        ld      (hl),a          ; #9 (bit 7)
+62   0060 3A 14 00          ld      A,(addr)        ; retrieve byte from $8000-$FFFF
+63   0063 6F                ld      L,A
+64   0064 3A 15 00          ld      A,(addr+1)
+65   0067 F6 80             or      $80
+66   0069 67                ld      H,A
+67   006A 31 00 20          LD SP, $2000         ; スタックを2000にする
+68   006D 23                INC HL
+69   006E 23                INC HL
+70   006F 22 17 00          LD (addr2),HL         ; コピー長を取得
+71   0072 2B                DEC HL
+72   0073 2B                DEC HL
+73   0074             LOOP:
+74   0074 3E 00             LD A,0
+75   0076 32 10 00          LD (VINT),A
+76   0079 4E 23 46 2B       LD BC,(HL)
+77   007D 23                INC HL
+78   007E 11 95 00          LD DE,AAA
+79   0081 ED B0             LDIR
+80   0083 3E C9             LD A,$C9 ; ret 追加
+81   0085 12                LD (DE),A
+82   0086 D9                EXX
+83   0087             POSSS:
+84   0087 CD 96 00          CALL AAA+1             ; [17] 関数呼び出し
+85   008A D9                EXX
+86   008B             VWAIT:
+87   008B 3A 10 00          LD A,(VINT)
+88   008E A7                AND A
+89   008F CA 8B 00          JP Z, VWAIT
+90   0092 C3 74 00          JP LOOP
+91   0095             AAA:
+92   0095 C9                RET

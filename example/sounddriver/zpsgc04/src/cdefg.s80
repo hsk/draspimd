@@ -1,0 +1,241 @@
+ENDF    EQU     $0011
+TBL0:
+      DW TBL1-TBL0-1
+      LD      (HL), $9f      ; [10]
+      LD      (HL), $88      ; [10]
+      LD      (HL), $03      ; [10]
+      LD      (HL), $8b      ; [10]
+      LD      (HL), $06      ; [10]
+      LD      (HL), $9b      ; [10]
+      LD      (HL), $bf      ; [10]
+      LD      (HL), $df      ; [10]
+      LD      (HL), $ff      ; [10]
+TBL1:
+      DW TBL2-TBL1-1
+TBL2:
+      DW TBL3-TBL2-1
+      LD      (HL), $9d      ; [10]
+TBL3:
+      DW TBL4-TBL3-1
+TBL4:
+      DW TBL5-TBL4-1
+TBL5:
+      DW TBL6-TBL5-1
+TBL6:
+      DW TBL7-TBL6-1
+TBL7:
+      DW TBL8-TBL7-1
+TBL8:
+      DW TBL9-TBL8-1
+TBL9:
+      DW TBL10-TBL9-1
+TBL10:
+      DW TBL11-TBL10-1
+TBL11:
+      DW TBL12-TBL11-1
+TBL12:
+      DW TBL13-TBL12-1
+      LD      (HL), $8f      ; [10]
+      LD      (HL), $05      ; [10]
+      LD      (HL), $9b      ; [10]
+TBL13:
+      DW TBL14-TBL13-1
+TBL14:
+      DW TBL15-TBL14-1
+      LD      (HL), $9d      ; [10]
+TBL15:
+      DW TBL16-TBL15-1
+TBL16:
+      DW TBL17-TBL16-1
+TBL17:
+      DW TBL18-TBL17-1
+TBL18:
+      DW TBL19-TBL18-1
+TBL19:
+      DW TBL20-TBL19-1
+TBL20:
+      DW TBL21-TBL20-1
+TBL21:
+      DW TBL22-TBL21-1
+TBL22:
+      DW TBL23-TBL22-1
+TBL23:
+      DW TBL24-TBL23-1
+TBL24:
+      DW TBL25-TBL24-1
+      LD      (HL), $84      ; [10]
+      LD      (HL), $05      ; [10]
+      LD      (HL), $9b      ; [10]
+TBL25:
+      DW TBL26-TBL25-1
+TBL26:
+      DW TBL27-TBL26-1
+      LD      (HL), $9d      ; [10]
+TBL27:
+      DW TBL28-TBL27-1
+TBL28:
+      DW TBL29-TBL28-1
+TBL29:
+      DW TBL30-TBL29-1
+TBL30:
+      DW TBL31-TBL30-1
+TBL31:
+      DW TBL32-TBL31-1
+TBL32:
+      DW TBL33-TBL32-1
+TBL33:
+      DW TBL34-TBL33-1
+TBL34:
+      DW TBL35-TBL34-1
+TBL35:
+      DW TBL36-TBL35-1
+TBL36:
+      DW TBL37-TBL36-1
+      LD      (HL), $80      ; [10]
+      LD      (HL), $05      ; [10]
+      LD      (HL), $9b      ; [10]
+TBL37:
+      DW TBL38-TBL37-1
+TBL38:
+      DW TBL39-TBL38-1
+      LD      (HL), $9d      ; [10]
+TBL39:
+      DW TBL40-TBL39-1
+TBL40:
+      DW TBL41-TBL40-1
+TBL41:
+      DW TBL42-TBL41-1
+TBL42:
+      DW TBL43-TBL42-1
+TBL43:
+      DW TBL44-TBL43-1
+TBL44:
+      DW TBL45-TBL44-1
+TBL45:
+      DW TBL46-TBL45-1
+TBL46:
+      DW TBL47-TBL46-1
+TBL47:
+      DW TBL48-TBL47-1
+TBL48:
+      DW TBL49-TBL48-1
+      LD      (HL), $87      ; [10]
+      LD      (HL), $04      ; [10]
+      LD      (HL), $9b      ; [10]
+TBL49:
+      DW TBL50-TBL49-1
+TBL50:
+      DW TBL51-TBL50-1
+      LD      (HL), $9d      ; [10]
+TBL51:
+      DW TBL52-TBL51-1
+TBL52:
+      DW TBL53-TBL52-1
+TBL53:
+      DW TBL54-TBL53-1
+TBL54:
+      DW TBL55-TBL54-1
+TBL55:
+      DW TBL56-TBL55-1
+TBL56:
+      DW TBL57-TBL56-1
+TBL57:
+      DW TBL58-TBL57-1
+TBL58:
+      DW TBL59-TBL58-1
+TBL59:
+      DW TBL60-TBL59-1
+TBL60:
+      DW TBL61-TBL60-1
+      LD      (HL), $8f      ; [10]
+      LD      (HL), $03      ; [10]
+      LD      (HL), $9b      ; [10]
+TBL61:
+      DW TBL62-TBL61-1
+TBL62:
+      DW TBL63-TBL62-1
+      LD      (HL), $9d      ; [10]
+TBL63:
+      DW TBL64-TBL63-1
+TBL64:
+      DW TBL65-TBL64-1
+TBL65:
+      DW TBL66-TBL65-1
+TBL66:
+      DW TBL67-TBL66-1
+TBL67:
+      DW TBL68-TBL67-1
+TBL68:
+      DW TBL69-TBL68-1
+TBL69:
+      DW TBL70-TBL69-1
+TBL70:
+      DW TBL71-TBL70-1
+TBL71:
+      DW TBL72-TBL71-1
+TBL72:
+      DW TBL73-TBL72-1
+      LD      (HL), $88      ; [10]
+      LD      (HL), $03      ; [10]
+      LD      (HL), $9b      ; [10]
+TBL73:
+      DW TBL74-TBL73-1
+TBL74:
+      DW TBL75-TBL74-1
+      LD      (HL), $9d      ; [10]
+TBL75:
+      DW TBL76-TBL75-1
+TBL76:
+      DW TBL77-TBL76-1
+TBL77:
+      DW TBL78-TBL77-1
+TBL78:
+      DW TBL79-TBL78-1
+TBL79:
+      DW TBL80-TBL79-1
+TBL80:
+      DW TBL81-TBL80-1
+TBL81:
+      DW TBL82-TBL81-1
+TBL82:
+      DW TBL83-TBL82-1
+TBL83:
+      DW TBL84-TBL83-1
+TBL84:
+      DW TBL85-TBL84-1
+      LD      (HL), $85      ; [10]
+      LD      (HL), $03      ; [10]
+      LD      (HL), $9b      ; [10]
+TBL85:
+      DW TBL86-TBL85-1
+TBL86:
+      DW TBL87-TBL86-1
+      LD      (HL), $9d      ; [10]
+TBL87:
+      DW TBL88-TBL87-1
+TBL88:
+      DW TBL89-TBL88-1
+TBL89:
+      DW TBL90-TBL89-1
+TBL90:
+      DW TBL91-TBL90-1
+TBL91:
+      DW TBL92-TBL91-1
+TBL92:
+      DW TBL93-TBL92-1
+TBL93:
+      DW TBL94-TBL93-1
+TBL94:
+      DW TBL95-TBL94-1
+TBL95:
+      DW TBL96-TBL95-1
+TBL96:
+      DW TBL97-TBL96-1
+      LD BC,TBL0-TBL96
+       EXX
+       LD BC,TBL0-TBL97
+       ADD HL,BC
+       EXX
+      LD A,1
+      LD (ENDF),A
+TBL97:
