@@ -1,0 +1,10 @@
+#mucom88 1.5
+#title Sample Music 1
+#composer Yuzo Koshiro
+#author Yuzo Koshiro
+#voice voice.dat
+#pcm mucompcm.bin
+#date 2018/11/24
+#comment 
+
+D   C192 L l16@4v8o6    cdefgab>c

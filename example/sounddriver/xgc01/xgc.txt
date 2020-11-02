@@ -1,0 +1,82 @@
+read ok size 1fc
+blocksize 0
+version 0
+misc 0
+offset 100
+musiclen 9c
+init ok
+0104: cmd 01 00:frame size 1
+0106: cmd 01 00:frame size 9
+0108: cmd 36 1b:9b bf df ff env
+010d: cmd 22 11:8b 6 psg
+0110: cmd 01 00:frame size 3
+0112: cmd 30 18:9d env
+0114: cmd 01 00:frame size 1
+0116: cmd 01 00:frame size 1
+0118: cmd 01 00:frame size 1
+011a: cmd 01 00:frame size 1
+011c: cmd 01 00:frame size 6
+011e: cmd 30 18:9b env
+0120: cmd 22 11:8f 5 psg
+0123: cmd 01 00:frame size 3
+0125: cmd 30 18:9d env
+0127: cmd 01 00:frame size 1
+0129: cmd 01 00:frame size 1
+012b: cmd 01 00:frame size 1
+012d: cmd 01 00:frame size 1
+012f: cmd 01 00:frame size 5
+0131: cmd 30 18:9b env
+0133: cmd 20 10:84 psg
+0135: cmd 01 00:frame size 3
+0137: cmd 30 18:9d env
+0139: cmd 01 00:frame size 1
+013b: cmd 01 00:frame size 1
+013d: cmd 01 00:frame size 1
+013f: cmd 01 00:frame size 1
+0141: cmd 01 00:frame size 5
+0143: cmd 30 18:9b env
+0145: cmd 20 10:80 psg
+0147: cmd 01 00:frame size 3
+0149: cmd 30 18:9d env
+014b: cmd 01 00:frame size 1
+014d: cmd 01 00:frame size 1
+014f: cmd 01 00:frame size 1
+0151: cmd 01 00:frame size 1
+0153: cmd 01 00:frame size 6
+0155: cmd 30 18:9b env
+0157: cmd 22 11:87 4 psg
+015a: cmd 01 00:frame size 3
+015c: cmd 30 18:9d env
+015e: cmd 01 00:frame size 1
+0160: cmd 01 00:frame size 1
+0162: cmd 01 00:frame size 1
+0164: cmd 01 00:frame size 1
+0166: cmd 01 00:frame size 6
+0168: cmd 30 18:9b env
+016a: cmd 22 11:8f 3 psg
+016d: cmd 01 00:frame size 3
+016f: cmd 30 18:9d env
+0171: cmd 01 00:frame size 1
+0173: cmd 01 00:frame size 1
+0175: cmd 01 00:frame size 1
+0177: cmd 01 00:frame size 1
+0179: cmd 01 00:frame size 5
+017b: cmd 30 18:9b env
+017d: cmd 20 10:88 psg
+017f: cmd 01 00:frame size 3
+0181: cmd 30 18:9d env
+0183: cmd 01 00:frame size 1
+0185: cmd 01 00:frame size 1
+0187: cmd 01 00:frame size 1
+0189: cmd 01 00:frame size 1
+018b: cmd 01 00:frame size 5
+018d: cmd 30 18:9b env
+018f: cmd 20 10:85 psg
+0191: cmd 01 00:frame size 3
+0193: cmd 30 18:9d env
+0195: cmd 01 00:frame size 1
+0197: cmd 01 00:frame size 1
+0199: cmd 01 00:frame size 1
+019b: cmd 01 00:frame size 1
+019d: cmd 01 00:frame size 2
+019f: cmd fe 7f:com_end
