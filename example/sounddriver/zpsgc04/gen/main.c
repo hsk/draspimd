@@ -61,10 +61,8 @@ void process_command(FILE* fp,VgmPlayer* v) {
     fprintf(fp,"       LD BC,TBL0-TBL97\n");
     fprintf(fp,"       ADD HL,BC\n");
     fprintf(fp,"       EXX\n");
-    fprintf(fp,
-      "      LD A,1\n"
-      "      LD (ENDF),A\n"
-    );
+    fprintf(fp,"      LD A,1\n"
+               "      LD (ENDF),A\n");
     //fprintf(fp,"      v->end=%d;\n",v->end);
     break;
   }
