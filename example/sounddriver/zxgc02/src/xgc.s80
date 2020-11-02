@@ -1,0 +1,144 @@
+  .macro set_bank X
+        LD      HL,$6000        ; load shift register with address
+        LD      A,(X+1)         ; of sound data
+        RLCA
+        LD      (HL),A          ; #1 (bit 7)
+        LD      A,(X+2)
+        LD      (HL),A          ; #2 (bit 0)
+        RRCA
+        LD      (HL),A          ; #3
+        RRCA     
+        LD      (HL),A          ; #4
+        RRCA     
+        LD      (HL),A          ; #5
+        RRCA     
+        LD      (HL),A          ; #6
+        RRCA     
+        LD      (HL),A          ; #7
+        RRCA     
+        LD      (HL),A          ; #8
+        RRCA     
+        LD      (HL),A          ; #9 (bit 7)
+  .endm
+  .macro wait_VSync
+        ; VSYNC 待ち
+        LD      A,0
+        LD      (VINT),A
+.VWAIT:
+        LD      A,(VINT)
+        AND     A
+        JP      Z,.VWAIT
+  .endm 
+
+PSG_REG:equ     $7F11 ; PSG ポート
+        org     $0000
+BOOT: ; プログラム 開始位置
+        DI                              ; 割り込み禁止
+        LD      SP,$2000                ; スタックポインタ初期化
+        IM      1                       ; 割り込みMODE 1
+        DI
+        JP      INIT                    ; RESET
+; 68000 とのデータやり取り
+        block   $0010-$
+        org     $0010
+VINT:   DB      0
+ADDR:   DB      0,0,0
+; 割込み処理 --------------------------
+        block   $0038-$
+        org     $0038
+VSYNC:  RETI                            ; VSYNC割り込み終了
+; 割り込み終了 -------------------------
+
+INIT:
+        ; 初期化待ちループ
+        LD      A,(VINT)
+        AND     A
+        JP      Z,INIT              
+        ; バンク切り替え
+        set_bank ADDR
+        ; DE にPSGのレジスタアドレスを設定
+        LD      DE,PSG_REG
+MAIN_START:
+        ; アドレスをIYに設定
+        LD      A,(ADDR)
+        LD      IYL,A
+        LD      A,(ADDR+1)
+        OR      $80
+        LD      IYH,A
+; メインループ      
+MAIN_LOOP:
+        wait_VSync ; VSync 待ち
+; コマンド実行
+COMMAND_LOOP:
+        ; コマンド取り出し
+        LD      B,0
+        LD      C,(IY)
+        INC     IY
+        ; ジャンプアドレス算出
+        LD      IX,JUMP_TBL
+        ADD     IX,BC
+        ; ジャンプ
+        LD      HL,(IX)
+        JP      (HL)
+JUMP_TBL:
+  DB 0
+  DW FN01
+  DB 0
+  DW           FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__ ; 00
+  DW FN10,FN11,FN12,FN13, FN14,FN15,FN16,FN17, FN18,FN19,FN1A,FN1B, FN__,FN__,FN__,FN__ ; 10
+  DW FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__ ; 20
+  DW FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__ ; 30
+  DW FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__ ; 40
+  DW FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__ ; 50
+  DW FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__ ; 60
+  DW FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN__, FN__,FN__,FN__,FN7F ; 70
+
+
+; コマンド
+
+; ウェイトコマンド
+FN01: INC     IY
+      JP      MAIN_LOOP
+FN1B: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN1A: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN19: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN18: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+; 何もしないコマンド
+FN__: JP      COMMAND_LOOP
+
+; PSG設定コマンド
+FN17: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN16: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN15: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN14: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN13: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN12: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN11: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+FN10: LD      A,(IY)  ; データ取り出し
+      LD      (DE),A  ; PSG レジスタ書き込み
+      INC     IY
+      JP     COMMAND_LOOP
+; 終了コマンド
+FN7F: JP     MAIN_START
